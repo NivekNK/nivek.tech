@@ -11,15 +11,55 @@ const isActive = href === pathname || href === '/' + subpath?.[0];
 ---
 
 <a href={href} class:list={[className, { active: isActive }]} {...props}>
-	<slot />
+    <div class={`relative rounded-full ${isActive ? "bg-[#3d3d3d]" : ""}`}>
+        {isActive &&
+            <div class="absolute inset-0 flex justify-center -top-1 pointer-events-none">
+                <div class="bg-white rounded-full w-6 h-2 neon-shadow">
+                </div>
+            </div>
+        }
+        <div
+            class="hover-gradient py-1 px-5 rounded-full"
+        >
+            <slot />
+        </div>
+    </div>
 </a>
+
+<script>
+const hoverGradientElements = document.querySelectorAll(".hover-gradient");
+
+hoverGradientElements.forEach((hoverGradient) => {
+    hoverGradient.addEventListener("mousemove", (event) => {
+        const target = event.currentTarget;
+        const { left, width } = target.getBoundingClientRect();
+        const x = event.clientX - left;
+        const midpoint = width / 2;
+
+        const isHoveringLeft = x < midpoint;
+        const gradientStyle = isHoveringLeft
+            ? 'linear-gradient(to right, #464646, transparent)' // Fix color hex here
+            : 'linear-gradient(to left, #464646, transparent)';
+
+        // Update the inline style dynamically only while hovering
+        target.style.backgroundImage = gradientStyle;
+    });
+
+    // Optionally, you can also add a 'mouseleave' event to reset the background when not hovering
+    hoverGradient.addEventListener("mouseleave", () => {
+        hoverGradient.style.backgroundImage = ''; // Reset the background
+    });
+});
+</script>
+
 <style>
-	a {
-		display: inline-block;
-		text-decoration: none;
-	}
-	a.active {
-		font-weight: bolder;
-		text-decoration: underline;
-	}
+.neon-shadow {
+    box-shadow:
+        0 0 5px rgba(255, 255, 255, 0.6),
+        0 0 10px rgba(255, 255, 255, 0.8),
+        0 0 15px rgba(255, 255, 255, 1),
+        0 0 20px rgba(255, 255, 255, 0.7),
+        0 0 25px rgba(255, 255, 255, 0.5);
+    transition: box-shadow 0.3s ease;
+}
 </style>
